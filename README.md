@@ -3,6 +3,6 @@ C program to simulate scheduling algorithms (FCFS, non-preemptive priority, pree
 
 the input file format is:
 
-<name>,<arrival time>,<burst time>,<priority>
+name,arrival_time,burst_time,priority
   
 name must be no more than 3 characters. If no priority is provided then it will be 0
