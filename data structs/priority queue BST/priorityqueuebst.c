@@ -177,6 +177,18 @@ void* pqbst_poll(priority_queue_bst*pqbst)
     }
 }
 
+void* pqbst_peek(priority_queue_bst*pqbst)
+{
+    if(!pqbst->poll_node)
+        return NULL;
+    return pqbst->poll_node->data;
+}
+
+bool pqbst_empty(priority_queue_bst*pqbst)
+{
+    return !pqbst->root;
+}
+
 void free_bst(pq_node*n, bool free_data, pq_node* poll_node)
 {
     if(n!=NULL)
@@ -194,41 +206,7 @@ void free_pqbst(priority_queue_bst* pqbst, bool free_data)
     free(pqbst);
 }
 
-//copied from geeksforgeeks ↓
-#define COUNT 10
-void print2DUtil(pq_node*root, int space, pq_node *next)
-{
-    // Base case
-    if (root == NULL)
-        return;
-
-    // Increase distance between levels
-    space += COUNT;
-
-    // Process right child first
-    print2DUtil(root->right, space, next);
-
-    // Print current pq_node after space
-    // count
-    printf("\n");
-    for (int i = COUNT; i < space; i++)
-        printf(" ");
-    printf("%d\n", *((int*)root->data));
-
-    // Process left child
-    if(root != next)
-        print2DUtil(root->left, space, next);
-}
-
-// Wrapper over print2DUtil()
-void print2D(pq_node *root, pq_node* next)
-{
-    // Pass initial space count as 0
-    print2DUtil(root, 0, next);
-}
-//copied from geeksforgeeks ↑
-
-void print_pqbst(priority_queue_bst*pqbst)
+/*void print_pqbst(priority_queue_bst*pqbst)
 {
     char* next_data;
     bool alloced = false;
@@ -248,15 +226,5 @@ void print_pqbst(priority_queue_bst*pqbst)
     print2D(pqbst->root, (pq_node*) pqbst->poll_node);
     puts("\n");
 }
+*/
 
-void* pqbst_peek(priority_queue_bst*pqbst)
-{
-    if(!pqbst->poll_node)
-        return NULL;
-    return pqbst->poll_node->data;
-}
-
-bool pqbst_empty(priority_queue_bst*pqbst)
-{
-    return !pqbst->root;
-}
