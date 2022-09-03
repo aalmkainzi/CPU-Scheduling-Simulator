@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../scheduling.h"
-#include "../../data structs/growable array/growable_array.h"
+#include "../../data structs/dynamic array/array.h"
 #include "../../data structs/priority queue BST/priorityqueuebst.h"
 
-gantt_c* sjf_gantt_of(process**a, int n)
+gantt_c* sjf_gantt_of(process*a, int n)
 {
     int (*cmp)(const process*, const process*) = &cmp_processes_at;
     qsort(a, n, sizeof(process*), cmp);

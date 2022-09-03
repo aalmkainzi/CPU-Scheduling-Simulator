@@ -1,13 +1,10 @@
 #include <string.h>
 #include "../scheduling.h"
-#include "../../data structs/growable array/growable_array.h"
+#include "../../data structs/dynamic array/array.h"
 #include "../../data structs/linked structs/linked queue/linkedqueue.h"
 #include "../../data structs/hashmap/hashmap.h"
-#include "../../hashmath/hashmath.h"
 
-
-
-gantt_c* rr_gantt_of(process**a, int n, int tq)
+gantt_c* rr_gantt_of(process*a, int n, int tq)
 {
     int (*cmp)(const process**, const process**) = &cmp_processes_at;
 
@@ -19,7 +16,7 @@ gantt_c* rr_gantt_of(process**a, int n, int tq)
 
     bool (*equals)(const process_metadata*, const process_metadata*) = &pmd_equals;
     size_t (*hash)(const process*p) = &hash_pmd;
-    hashmap* pmd_hm = init_hashmap(n, equals, hash);
+    hashmap* pmd_hm = init_hashmap_local(n, equals, hash);
 
     for (int i = 0, time_passed = 0; !q_empty(arrived_processes) || i < n; )
     {

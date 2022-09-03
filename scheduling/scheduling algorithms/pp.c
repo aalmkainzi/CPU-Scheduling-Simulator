@@ -3,9 +3,9 @@
 #include "../scheduling.h"
 #include "../../data structs/priority queue BST/priorityqueuebst.h"
 #include "../../data structs/hashmap/hashmap.h"
-#include "../../data structs/growable array/growable_array.h"
+#include "../../data structs/dynamic array/array.h"
 
-gantt_c* pp_gantt_of(process**a, int n)
+gantt_c* pp_gantt_of(process*a, int n)
 {
     int (*cmp)(const void*, const void*) = &cmp_processes_at;
     msort(a, n, sizeof(process*), cmp);
@@ -14,7 +14,7 @@ gantt_c* pp_gantt_of(process**a, int n)
 
     bool (*equals)(const void*, const void**) = &pmd_equals;
     size_t (*hash)(const void*) = &hash_pmd;
-    hashmap* pmd_hm = init_hashmap(n, equals, hash);
+    hashmap* pmd_hm = init_hashmap_local(n, equals, hash);
 
     array* gantt_rects = init_array(n);
 

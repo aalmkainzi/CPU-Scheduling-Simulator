@@ -34,8 +34,8 @@ void bst_add(pq_node*n, void* data, int p)
     }
 }
 
-//only works with integer types __int8, __int16, and __int32; will use the data as priority (i.e. the lower the data the higher the priority)
-void pqbst_add_int(priority_queue_bst*pqbst, void* data, unsigned long long size)
+//only works with integer types __int8, __int16, and __int32; will use the list as priority (i.e. the lower the list the higher the priority)
+void pqbst_add_int(priority_queue_bst*pqbst, void* data, size_t size)
 {
     switch (size)
     {
@@ -116,7 +116,7 @@ void* pqbst_poll(priority_queue_bst*pqbst)
     }
     if(pqbst->poll_node == (poll_node*)pqbst->root)
     {
-        void* ret = pqbst->poll_node->data;
+        void* ret = pqbst->poll_node->list;
         pq_node* right = pqbst->root->right;
         free(pqbst->root);
         pqbst->root = right;
@@ -140,7 +140,7 @@ void* pqbst_poll(priority_queue_bst*pqbst)
     }
     else
     {
-        void* ret = pqbst->poll_node->data;
+        void* ret = pqbst->poll_node->list;
 
         pq_node* old_next_rbst = pqbst->poll_node->parent->left = pqbst->poll_node->right;
         pq_node* min_parent_of_next_rbst = min_node_parent(old_next_rbst);
@@ -177,18 +177,6 @@ void* pqbst_poll(priority_queue_bst*pqbst)
     }
 }
 
-void* pqbst_peek(priority_queue_bst*pqbst)
-{
-    if(!pqbst->poll_node)
-        return NULL;
-    return pqbst->poll_node->data;
-}
-
-bool pqbst_empty(priority_queue_bst*pqbst)
-{
-    return !pqbst->root;
-}
-
 void free_bst(pq_node*n, bool free_data, pq_node* poll_node)
 {
     if(n!=NULL)
@@ -206,7 +194,21 @@ void free_pqbst(priority_queue_bst* pqbst, bool free_data)
     free(pqbst);
 }
 
-/*void print_pqbst(priority_queue_bst*pqbst)
+
+void* pqbst_peek(priority_queue_bst*pqbst)
+{
+    if(!pqbst->poll_node)
+        return NULL;
+    return pqbst->poll_node->list;
+}
+
+bool pqbst_empty(priority_queue_bst*pqbst)
+{
+    return !pqbst->root;
+}
+
+/*
+void print_pqbst(priority_queue_bst*pqbst)
 {
     char* next_data;
     bool alloced = false;
@@ -214,7 +216,7 @@ void free_pqbst(priority_queue_bst* pqbst, bool free_data)
     {
         next_data = calloc(11,sizeof(char));
         alloced = true;
-        sprintf(next_data, "%d", *((int*)pqbst->poll_node->data));
+        sprintf(next_data, "%d", *((int*)pqbst->poll_node->list));
     }
     else
     {
@@ -227,4 +229,3 @@ void free_pqbst(priority_queue_bst* pqbst, bool free_data)
     puts("\n");
 }
 */
-

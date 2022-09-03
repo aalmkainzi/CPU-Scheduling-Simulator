@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "data structs/growable array/growable_array.h"
-#include <string.h>
+#include <stdlib.h>
 #include "scheduling/scheduling.h"
 #include "processfiles.h"
-
-#define MAX_FILENAME 51
-
-//TODO implement process auto-naming if a single process name is invalid (e.g. if a process name is q_empty then name all processes "%c%d", p_num)
 
 FILE *get_pfile();
 
@@ -15,16 +10,16 @@ int main()
 {
     while(true)
     {
-        FILE *file = get_pfile();
-        if(file == NULL)
+        FILE *pfile = get_pfile();
+        if(pfile == NULL)
         {
             puts("file not found");
             continue;
         }
 
         int size;
-        process** processes_buffer = process_buffer_from(file, &size);
-        fclose(file);
+        process* processes_buffer = process_buffer_from(pfile, &size);
+        fclose(pfile);
 
         puts("algorithm to simulate:\n"
              "1) FCFS\n"
@@ -81,20 +76,17 @@ int main()
             print_gantt(gantt_chart);
             free_gantt(gantt_chart, true, true);
         }
-        free_processes((process**)processes_buffer, size, true);
+        free(processes_buffer);
     }
 }
 
-FILE *get_pfile()
+#define MAX_FILENAME 256
+FILE* get_pfile()
 {
-    char* fname = malloc(MAX_FILENAME);
-    puts("enter file name containing processes data:");
+    char fname[MAX_FILENAME] = {0};
+    puts("enter file name containing processes list:");
     fgets(fname, MAX_FILENAME, stdin);
-    size_t len = strlen(fname);
-    fname[len - 1] = '\0';
-    fname = realloc(fname, len);
     FILE* file = fopen(fname, "r");
-    free(fname);
     return file;
 }
 

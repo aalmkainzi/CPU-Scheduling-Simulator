@@ -1,6 +1,6 @@
 #include <string.h>
 #include "scheduling.h"
-#include "../hashmath/hashmath.h"
+#include "../data structs/hashmap/hashmath/hashmath.h"
 
 int cmp_processes_at(const process**a, const process**b)
 {

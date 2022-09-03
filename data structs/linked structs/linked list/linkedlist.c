@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "linkedlist.h"
 
 linkedlist* init_linkedlist(bool (*equals)(const void*, const void*))
@@ -11,52 +12,52 @@ linkedlist* init_linkedlist(bool (*equals)(const void*, const void*))
 
 void ls_add(linkedlist*ls, void*data)
 {
-    linked_add(&ls->head, &ls->tail, data, &ls->metadata.size);
-    /*
-    if(ls_empty(ls))
+    node* tail = ls->tail;
+    if (!tail)
     {
-        ls->head = calloc(1, sizeof(node));
-        ls->head->data = data;
-        ls->tail = ls->head;
-    }
+        ls->tail = calloc(1, sizeof(node));
+        ls->tail->data = data;
+        ls->head =ls->tail;
+    } 
     else
     {
-        ls->tail->next = calloc(1, sizeof(node));
-        ls->tail->next->data = data;
-        ls->tail = ls->tail->next;
+        tail->next = calloc(1, sizeof(node));
+        tail->next->data = data;
+        ls->tail = tail->next;
     }
     ls->metadata.size++;
-    */
 }
 
-void* ls_delete_at(linkedlist* ls, size_t index)
+void* ls_delete_at(linkedlist* ls, int index)
 {
-    return linked_delete_at(&ls->head, &ls->tail, index, &ls->metadata.size);
-    /*
-    if(ls_empty(ls))
-        return NULL;
-    if(index==0)
-    {
-        void* ret = ls->head->data;
-        node* temp = ls->head->next;
-        free(ls->head);
-        ls->head = temp;
-        ls->metadata.size--;
-        return ret;
-    }
-    node* current = ls->head;
-    index--;
-    while(index--)
-    {
-        current = current->next;
-    }
-    void* ret = current->next->data;
-    node* temp = current->next->next;
-    free(current->next);
-    current->next = temp;
+    int i = index;
+    void *ret;
     ls->metadata.size--;
+    if(!i)
+    {
+        ret = (*&ls->head)->data;
+        node *temp = (*&ls->head)->next;
+        free(*&ls->head);
+        (*&ls->head) = temp;
+        if (!*&ls->metadata.size)
+        {
+            *&ls->tail = *&ls->head;
+        }
+    } 
+    else
+    {
+        node *current = ls->head;
+        i--;
+        while (i--)
+        {
+            current = current->next;
+        }
+        node *temp = current->next->next;
+        ret = current->next->data;
+        free(current->next);
+        current->next = temp;
+    }
     return ret;
-    */
 }
 
 void* ls_delete_first(linkedlist*ls)
@@ -66,44 +67,104 @@ void* ls_delete_first(linkedlist*ls)
 
 void* ls_delete_element(linkedlist* ls, void* element)
 {
-    return linked_delete_element(&(ls->head), &ls->tail, element, &(ls->metadata));
-    /*
-    node* current = ls->head;
-    for (size_t n = ls->metadata.size; n ; n--)
+    node* head = ls->head;
+    if(!head)
+        return NULL;
+    bool (*equals)(const void*, const void*) = ls->metadata.equals;
+    if(equals(head->data, element))
     {
-        if(equals(current->data, element))
+        node* temp = head->next;
+        void* ret = head->data;
+        free(head);
+        ls->head = temp;
+        ls->metadata.size--;
+        if(!ls->metadata.size)
         {
-            ls_delete_at(ls, n);
-            return true;
+            ls->tail = temp;
         }
-        current = current->next;
-        n--;
+        return ret;
     }
-    return false;
-    */
+    else
+    {
+        node* prev_node = NULL;
+        for(node* current = head; current->next; current = current->next)
+        {
+            if (equals(current->next->data, element))
+            {
+                prev_node = current;
+                break;
+            }
+        }
+        if(prev_node)
+        {
+            node* temp = prev_node->next->next;
+            void* ret = prev_node->next->data;
+            free(prev_node->next);
+            prev_node->next = temp;
+            ls->metadata.size--;
+            return ret;
+        }
+        return NULL;
+    }
 }
 
 bool ls_empty(linkedlist*ls)
 {
-    return linked_empty(&ls->metadata);
+    return !ls->metadata.size;
+}
+
+void free_nodes(node*linked_struct_head, bool free_data)
+{
+    node* current = linked_struct_head;
+    if(free_data)
+        while(current)
+        {
+            node* temp = current->next;
+            free(current->data);
+            free(current);
+            current = temp;
+        }
+    else
+        while(current)
+        {
+            node* temp = current->next;
+            free(current);
+            current = temp;
+        }
 }
 
 void free_ls(linkedlist*ls, bool free_data)
 {
-    free_linked(ls, ls->head, free_data);
+    free_nodes(ls->head, free_data);
+    free(ls);
 }
 
 bool ls_contains(linkedlist*ls, void* data)
 {
-    return linked_contains(ls->head, data, &ls->metadata);
+    bool (*equals)(const void *, const void *) = ls->metadata.equals;
+    for(node* n = ls->head; n; n=n->next)
+        if(equals(data, n->data))
+            return true;
+    return false;
 }
 
 void* ls_get_data(linkedlist*ls, void* data)
 {
-    return linked_get(ls->head, data, &ls->metadata);
+    node *current = ls->head;
+    while (!(&ls->metadata)->equals(data, current->data))
+        current = current->next;
+    return current->data;
 }
 
-void* ls_get_at(linkedlist* ls, size_t i)
+void* ls_get_at(linkedlist* ls, int i)
 {
-    return linked_get_at(ls->head, i);
+    if(ls->metadata.size < i)
+    {
+        fprintf(stderr, "invalid index of %d for linked list of size %d\n", i, ls->metadata.size);
+        exit(1);
+    }
+    node* current = ls->head;
+    while(i--)
+        current = current->next;
+    return current->data;
 }

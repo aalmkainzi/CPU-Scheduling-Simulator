@@ -1,97 +1,140 @@
 #include "hashmap.h"
-#include "../../hashmath/hashmath.h"
+#include "hashmath/hashmath.h"
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
-hashmap* init_hashmap(size_t s, bool (*equals)(const void*, const void**), size_t(*hash_val)(const void*))
+hashmap* init_hashmap(int s, bool (*equals)(const void*, const void*), int(*hash_val)(const void*), int key_size, int val_size)
 {
-    hashmap* ret = calloc(1,sizeof(hashmap));
+    hashmap* ret = malloc(sizeof(hashmap));
     ret->equals = equals;
     ret->hash_val = hash_val;
     s = ceil(s * 1.3);
     s = next_prime(s);
     ret->buffer_width = s;
-    ret->arr = calloc(s, sizeof(linkedlist));
+    ret->arrays = calloc(s, sizeof(pair_soa));
     return ret;
 }
 
-size_t hm_hash(hashmap* hm, void* key)
+void set_hashmap(hashmap* hm, int s, bool (*equals)(const void*, const void*), int(*hash_val)(const void*), int key_size, int val_size)
+{
+    hm->equals = equals;
+    hm->hash_val = hash_val;
+    s = ceil(s * 1.3);
+    s = next_prime(s);
+    hm->buffer_width = s;
+    hm->arrays = calloc(s, sizeof(pair_soa));
+}
+
+int hm_hash(hashmap* hm, void* key)
 {
     return hm->hash_val(key) % hm->buffer_width;
 }
 
 void hashmap_add(hashmap*hm, void* key, void* val)
 {
-    pair* p = malloc(sizeof(pair));
-    p->key = key;
-    p->val = val;
-
-    linkedlist* ls = &hm->arr[hm_hash(hm, key)];
-    if(!ls->metadata.equals)
-        ls->metadata.equals = hm->equals;
-    if(!ls_contains(ls, key))
+    pair_soa soa = hm->arrays[hm_hash(hm, key)];
+    if(soa.cap==0)
     {
-        ls_add(ls, p);
-        hm->size++;
+        soa.cap = 8;
+        soa.buffer = malloc((hm->key_size*soa.cap) + (hm->val_size*soa.cap));
+        soa.v_start = soa.buffer + (hm->key_size*soa.cap);
     }
+    else if(soa.cap == soa.size)
+    {
+        soa.cap *= 2;
+        soa.buffer = realloc(soa.buffer, (soa.cap * hm->key_size) + (soa.cap * hm->val_size));
+        soa.v_start = soa.buffer + (hm->key_size * soa.cap); //because we reallocated the buffer
+        memmove(soa.v_start+(hm->val_size * soa.size), soa.v_start, hm->val_size*(soa.size)); //TODO this is hacky. only works if growth rate is 2, test it though
+    }
+    memcpy(soa.buffer+(hm->key_size*soa.k_empty_start), key, hm->key_size);
+    memcpy(soa.v_start+(hm->val_size*soa.v_empty_start), val, hm->val_size);
+    soa.size++;
+    soa.k_empty_start++;
+    soa.v_empty_start++;
 }
 
 bool hashmap_contains_key(hashmap* hm, void* key)
 {
-    return ls_contains(&hm->arr[hm_hash(hm, key)], key);
+    pair_soa soa = hm->arrays[hm_hash(hm, key)];
+    for (int i = 0; i < soa.size; ++i)
+    {
+        if(hm->equals(soa.buffer + (i * hm->key_size), key)) return true;
+    }
+    return false;
 }
 
 bool hashmap_delete(hashmap* hm, void* key)
 {
-    void* deleted_elm = ls_delete_element(&hm->arr[hm_hash(hm, key)], key);
-    if(deleted_elm)
-        hm->size--;
-    return deleted_elm;
+    pair_soa soa = hm->arrays[hm_hash(hm, key)];
+    int index = -1;
+    for (int i = 0; i < soa.size; ++i)
+    {
+        if(hm->equals(soa.buffer + (i * hm->key_size), key))
+        {
+            index = i;
+            break;
+        }
+    }
+    if(index==-1) return false;
+    memcpy(soa.buffer + (index * hm->key_size), soa.buffer + ((soa.k_empty_start - 1) * hm->key_size), hm->key_size);
+    memcpy(soa.v_start+(index*hm->val_size), soa.v_start+((soa.v_empty_start-1)*hm->val_size), hm->val_size);
+    soa.v_empty_start -= 1;
+    soa.k_empty_start -= 1;
+    soa.size--;
+    return true;
 }
 
 void* hashmap_get_val_of(hashmap* hm, void* key)
 {
-    return ((pair*)ls_get_data(&hm->arr[hm_hash(hm, key)], key))->val;
-}
-
-void* hashmap_update(hashmap* hm, void* key, void* new_val)
-{
-    pair *p = (pair*) ls_get_data(&hm->arr[hm_hash(hm, key)], key);
-    void* ret = p->val;
-    p->val = new_val;
-    return ret;
-}
-
-void free_hashmap(hashmap* hm, bool free_keys, bool free_vals)
-{
-    for (int i = 0; i < hm->buffer_width; ++i)
+    pair_soa soa = hm->arrays[hm_hash(hm, key)];
+    int index = -1;
+    for (int i = 0; i < soa.size; ++i)
     {
-        node* current = hm->arr[i].head;
-        while(current)
+        if(hm->equals(soa.buffer + (i * hm->key_size), key))
         {
-            node* temp = current->next;
-            pair* p = current->data;
-            if(free_keys) free(p->key);
-            if(free_vals) free(p->val);
-            free(p);
-            free(current);
-            current = temp;
+            index = i;
+            break;
         }
     }
-    free(hm->arr);
-    free(hm);
+    if(index==-1) return NULL;
+    return soa.v_start+(index*hm->val_size);
 }
 
-void hashmap_to_arr(hashmap* hm, void** buffer)
+bool hashmap_update(hashmap* hm, void* key, void* new_val)
 {
-    size_t count = 0;
-    for (int i = 0; i < hm->buffer_width; ++i) // && count < hm->size
+    pair_soa soa = hm->arrays[hm_hash(hm, key)];
+    int index = -1;
+    for (int i = 0; i < soa.size; ++i)
     {
-        node* current = hm->arr[i].head;
-        while(current)
+        if(hm->equals(key, soa.buffer + (i * hm->key_size)))
         {
-            buffer[count++] = ((pair*)current->data)->val;
-            current = current->next;
+            index = i;
+            break;
         }
+    }
+    if(index!=-1)
+    {
+        memcpy(soa.v_start + (index * hm->val_size), new_val, hm->val_size);
+        return true;
+    }
+    return false;
+}
+
+void free_hashmap(hashmap* hm)
+{
+    for (int i = 0; i < hm->buffer_width; ++i)
+        free(hm->arrays[i].buffer);
+    free(hm->arrays);
+}
+
+void hashmap_to_arr(hashmap* hm, void* buffer)
+{
+    int count = 0;
+    for (int i = 0; i < hm->buffer_width; ++i)
+    {
+        pair_soa current_soa = hm->arrays[i];
+        memcpy(buffer+(count*hm->val_size), current_soa.v_start, current_soa.size*hm->val_size);
+        count+=current_soa.size;
     }
 }
