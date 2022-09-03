@@ -12,6 +12,7 @@ typedef struct
 } array;
 
 array* init_array(int, int, bool (*equals)(const void*, const void*));
+void set_array(array* arr, int init_cap, int element_size, bool (*equals)(const void*, const void*));
 void arr_add_at(array *a, const void *element, int index);
 void arr_add(array *a, const void *element);
 void arr_delete_at(array *a, int index);

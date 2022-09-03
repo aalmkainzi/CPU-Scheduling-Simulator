@@ -15,6 +15,16 @@ array* init_array(int init_cap, int element_size, bool (*equals)(const void*, co
     arr->equals = equals;
     return arr;
 }
+
+void set_array(array* arr, int init_cap, int element_size, bool (*equals)(const void*, const void*))
+{
+    arr->cap = init_cap;
+    arr->size = 0;
+    arr->element_size = element_size;
+    arr->arr = calloc(arr->cap, element_size);
+    arr->equals = equals;
+}
+
 void arr_add_at(array *a, const void *element, int index)
 {
     if(index>a->size || index < 0)
