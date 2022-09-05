@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdio.h>
+#include "../data structs/hashmap/hashmath/hashmath.h"
 
 #define MAXPNAME 4
 
@@ -49,7 +50,19 @@ gantt_c* srtf_gantt_of(process*, int);
 void print_gantt(gantt_c*);
 void free_gantt(gantt_c*, bool, bool);
 
-int cmp_processes_at(const process*, const process*);
-bool pmd_equals(const char*p1_name, const char*p2_name);
-size_t hash_pmd(const char*p_name);
+int cmp_processes_at(const process*a, const process*b)
+{
+    return a->AT - b->AT;
+}
+
+bool pmd_equals(const char*p1_name, const char*p2_name)
+{
+    return !strcmp(p1_name,p2_name);
+}
+
+int hash_pmd(const char*p_name)
+{
+    return hash_str(p_name);
+}
+
 #endif

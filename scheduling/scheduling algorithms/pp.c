@@ -13,7 +13,7 @@ gantt_c* pp_gantt_of(process*a, int n)
     priority_queue_bst* arrived_processes = init_pqbst();
 
     bool (*equals)(const void*, const void**) = &pmd_equals;
-    size_t (*hash)(const void*) = &hash_pmd;
+    size_t (*hash)(const void*) = &hash_str;
     hashmap* pmd_hm = init_hashmap_local(n, equals, hash);
 
     array* gantt_rects = init_array(n);

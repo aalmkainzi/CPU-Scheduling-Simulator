@@ -7,12 +7,7 @@
 hashmap* init_hashmap(int s, bool (*equals)(const void*, const void*), int(*hash_val)(const void*), int key_size, int val_size)
 {
     hashmap* ret = malloc(sizeof(hashmap));
-    ret->equals = equals;
-    ret->hash_val = hash_val;
-    s = ceil(s * 1.3);
-    s = next_prime(s);
-    ret->buffer_width = s;
-    ret->arrays = calloc(s, sizeof(pair_soa));
+    set_hashmap(ret, s, equals, hash_val, key_size, val_size);
     return ret;
 }
 
@@ -20,6 +15,8 @@ void set_hashmap(hashmap* hm, int s, bool (*equals)(const void*, const void*), i
 {
     hm->equals = equals;
     hm->hash_val = hash_val;
+    hm->key_size = key_size;
+    hm->val_size = val_size;
     s = ceil(s * 1.3);
     s = next_prime(s);
     hm->buffer_width = s;
@@ -45,7 +42,7 @@ void hashmap_add(hashmap*hm, void* key, void* val)
         soa.cap *= 2;
         soa.buffer = realloc(soa.buffer, (soa.cap * hm->key_size) + (soa.cap * hm->val_size));
         soa.v_start = soa.buffer + (hm->key_size * soa.cap); //because we reallocated the buffer
-        memmove(soa.v_start+(hm->val_size * soa.size), soa.v_start, hm->val_size*(soa.size)); //TODO this is hacky. only works if growth rate is 2, test it though
+        memmove(soa.v_start+(hm->val_size * soa.size), soa.v_start, hm->val_size*(soa.size)); //this is hacky. only works if growth rate is 2, test it though
     }
     memcpy(soa.buffer+(hm->key_size*soa.k_empty_start), key, hm->key_size);
     memcpy(soa.v_start+(hm->val_size*soa.v_empty_start), val, hm->val_size);
