@@ -2,14 +2,14 @@
 #include "scheduling.h"
 #include "../data structs/hashmap/hashmath/hashmath.h"
 
-int cmp_processes_at(const process**a, const process**b)
+int cmp_processes_at(const process*a, const process*b)
 {
-    return a[0]->AT - b[0]->AT;
+    return a->AT - b->AT;
 }
 
-bool pmd_equals(const char*p1_name, const char**p2_name)
+bool pmd_equals(const char*p1_name, const char*p2_name)
 {
-    return !strcmp(p1_name,*p2_name);
+    return !strcmp(p1_name,p2_name);
 }
 
 size_t hash_pmd(const char*p_name)

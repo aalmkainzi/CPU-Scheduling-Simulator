@@ -5,6 +5,9 @@
 #include "../../data structs/priority queue BST/priorityqueuebst.h"
 #include "../../data structs/hashmap/hashmap.h"
 
+
+//TODO make a reusable function in scheduling.h that can is a generic priority member function =>
+//priority_scheduling(process*a, int n, int offset) where offset is where the member to prioritize is in relation to the beginning of the process
 gantt_c* srtf_gantt_of(process*a, int n)
 {
     int (*cmp)(const void*, const void*) = &cmp_processes_at;
@@ -14,7 +17,7 @@ gantt_c* srtf_gantt_of(process*a, int n)
 
     bool (*equals)(const void*, const void**) = &pmd_equals;
     size_t (*hash)(const void*) = &hash_pmd;
-    hashmap* pmd_hm = init_hashmap_local(n, equals, hash);
+    hashmap* pmd_hm = init_hashmap(n, equals, hash);
 
     array* gantt_rects = init_array(n);
 

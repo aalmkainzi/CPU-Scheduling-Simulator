@@ -34,9 +34,9 @@ typedef struct
 
 typedef struct
 {
-    gantt_p** gp;
+    gantt_p* gp;
     int n_gp;
-    process_metadata** pmd;
+    process_metadata* pmd;
     int n_pmd;
 } gantt_c;
 
@@ -49,7 +49,7 @@ gantt_c* srtf_gantt_of(process*, int);
 void print_gantt(gantt_c*);
 void free_gantt(gantt_c*, bool, bool);
 
-int cmp_processes_at(const process**, const process**);
-bool pmd_equals(const char*p1_name, const char**p2_name);
+int cmp_processes_at(const process*, const process*);
+bool pmd_equals(const char*p1_name, const char*p2_name);
 size_t hash_pmd(const char*p_name);
 #endif
