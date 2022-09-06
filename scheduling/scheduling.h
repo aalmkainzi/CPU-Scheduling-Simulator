@@ -6,11 +6,11 @@
 #include <stdio.h>
 #include "../data structs/hashmap/hashmath/hashmath.h"
 
-#define MAXPNAME 4
+#define MAX_PROCESS_NAME 4
 
 typedef struct
 {
-    char name[MAXPNAME];
+    char name[MAX_PROCESS_NAME];
     int AT;
     int BT;
     int P;
@@ -18,7 +18,7 @@ typedef struct
 
 typedef struct
 {
-    char name[MAXPNAME];
+    char name[MAX_PROCESS_NAME];
     int bt; //this is the bt that the process started with and shouldn't be updated, unlike process.BT
     int wt;
     int tat;
@@ -28,7 +28,7 @@ typedef struct
 
 typedef struct
 {
-    char name[MAXPNAME];
+    char name[MAX_PROCESS_NAME];
     int len;
     bool last;
 } gantt_p;

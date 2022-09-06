@@ -48,7 +48,7 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
                     }
                     else
                     {
-                        memcpy(gp.name, job->name, MAXPNAME);
+                        memcpy(gp.name, job->name, MAX_PROCESS_NAME);
                         gp.len = job->BT;
                         gp.last = true;
                         arr_add(gantt_rects, &gp);
@@ -57,7 +57,7 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
                 else
                 {
                     process_metadata pmd;
-                    memcpy(pmd.name, job->name, MAXPNAME);
+                    memcpy(pmd.name, job->name, MAX_PROCESS_NAME);
                     pmd.rt = time_passed;
                     pmd.bt = job->BT;
                     pmd.ct = time_passed + pmd.bt;
@@ -67,7 +67,7 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
                     time_passed = time_passed + job->BT;
                     gp.len = job->BT;
                     gp.last = true;
-                    memcpy(gp.name, job->name, MAXPNAME);
+                    memcpy(gp.name, job->name, MAX_PROCESS_NAME);
                     arr_add(gantt_rects, &gp);
                 }
             }
@@ -76,7 +76,7 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
                 if(!hashmap_contains_key(&pmd_hm, job->name))
                 {
                     process_metadata* pmd = calloc(1, sizeof(process_metadata));
-                    memcpy(pmd->name, job->name, MAXPNAME);
+                    memcpy(pmd->name, job->name, MAX_PROCESS_NAME);
                     pmd->rt = time_passed;
                     pmd->bt = job->BT;
                     hashmap_add(&pmd_hm, job->name, pmd);
@@ -90,7 +90,7 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
                 {
                     gp.last = false;
                     gp.len = tq;
-                    memcpy(gp.name, job->name, MAXPNAME);
+                    memcpy(gp.name, job->name, MAX_PROCESS_NAME);
                     arr_add(gantt_rects, &gp);
                 }
 
@@ -107,13 +107,13 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
         }
         else
         {
-            if(!arr_empty(gantt_rects) && !strcmp(((gantt_p*)arr_get_last(gantt_rects))->name, "")) //if prev rect is empty, extend it
+            if(!arr_empty(gantt_rects) && (((gantt_p*)arr_get_last(gantt_rects))->name[0])=='\0') //if prev rect is empty, extend it
             {
                 ((gantt_p*)arr_get_last(gantt_rects))->len++;
             }
             else
             {
-                memset(gp.name, 0, MAXPNAME); //this instead? => gp.name[0] = 0;
+                memset(gp.name, 0, MAX_PROCESS_NAME); //this instead? => gp.name[0] = 0;
                 gp.last = false;
                 gp.len = 1;
                 arr_add(gantt_rects, &gp);

@@ -82,7 +82,7 @@ gantt_c* srtf_gantt_of(process*a, int n)
         else
         {
             gantt_p* prev = arr_get_last(gantt_rects);
-            if(prev && !strcmp(prev->name, ""))
+            if(prev && (prev->name[0])=='\0')
             {
                 prev->len++;
             }

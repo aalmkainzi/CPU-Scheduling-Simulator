@@ -32,14 +32,14 @@ void print_processes(process*processes, size_t size)
 
 void add_process_name(FILE* f, process* pd)
 {
-    char p_name[MAXPNAME] = {0};
+    char p_name[MAX_PROCESS_NAME] = {0};
     int name_len = 0;
     char c;
-    while((c = fgetc(f))!=',' && name_len<MAXPNAME-1)
+    while((c = fgetc(f))!=',' && name_len < MAX_PROCESS_NAME - 1)
     {
         p_name[name_len++] = c;
     }
-    memcpy(pd->name, p_name, MAXPNAME);
+    memcpy(pd->name, p_name, MAX_PROCESS_NAME);
 }
 
 #define MAX_NUMLEN 11

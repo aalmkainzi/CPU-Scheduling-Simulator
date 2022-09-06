@@ -44,7 +44,7 @@ gantt_c* sjf_gantt_of(process*a, int n)
         }
         else
         {
-            if(!arr_empty(gantt_rects) && strcmp(((gantt_p*) arr_get_last(gantt_rects))->name, "") == 0)
+            if(!arr_empty(gantt_rects) && (((gantt_p*) arr_get_last(gantt_rects))->name[0]) == '\0')
             {
                 ((gantt_p*) arr_get_last(gantt_rects))->len++;
             }
