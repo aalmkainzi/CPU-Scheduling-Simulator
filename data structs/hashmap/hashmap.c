@@ -37,18 +37,22 @@ void hashmap_add(hashmap*hm, void* key, void* val)
         soa.buffer = malloc((hm->key_size*soa.cap) + (hm->val_size*soa.cap));
         soa.v_start = soa.buffer + (hm->key_size*soa.cap);
     }
-    else if(soa.cap == soa.size)
+    else if(!hashmap_contains_key(hm, key))
     {
-        soa.cap *= 2;
-        soa.buffer = realloc(soa.buffer, (soa.cap * hm->key_size) + (soa.cap * hm->val_size));
-        soa.v_start = soa.buffer + (hm->key_size * soa.cap); //because we reallocated the buffer
-        memmove(soa.v_start+(hm->val_size * soa.size), soa.v_start, hm->val_size*(soa.size)); //this is hacky. only works if growth rate is 2, test it though
+        if(soa.cap == soa.size)
+        {
+            soa.cap *= 2;
+            soa.buffer = realloc(soa.buffer, (soa.cap * hm->key_size) + (soa.cap * hm->val_size));
+            soa.v_start = soa.buffer + (hm->key_size * soa.cap); //because we reallocated the buffer
+            memmove(soa.v_start + (hm->val_size * soa.size), soa.v_start,
+                    hm->val_size * (soa.size)); //this is hacky. only works if growth rate is 2, test it though
+        }
+        memcpy(soa.buffer + (hm->key_size * soa.k_empty_start), key, hm->key_size);
+        memcpy(soa.v_start + (hm->val_size * soa.v_empty_start), val, hm->val_size);
+        soa.size++;
+        soa.k_empty_start++;
+        soa.v_empty_start++;
     }
-    memcpy(soa.buffer+(hm->key_size*soa.k_empty_start), key, hm->key_size);
-    memcpy(soa.v_start+(hm->val_size*soa.v_empty_start), val, hm->val_size);
-    soa.size++;
-    soa.k_empty_start++;
-    soa.v_empty_start++;
 }
 
 bool hashmap_contains_key(hashmap* hm, void* key)

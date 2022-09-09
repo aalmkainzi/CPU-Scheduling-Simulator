@@ -8,10 +8,9 @@
 //TAT = CT - AT
 //WT = TAT - BT
 //RT = WT
-gantt_c* npp_gantt_of(process*a, int n)
+gantt_c npp_gantt_of(process*a, int n)
 {
-    int (*cmp)(const process**, const process**) = &cmp_processes_at;
-    msort(a, n, sizeof(process*), cmp);
+    msort(a, n, sizeof(process*), cmp_AT_func);
     priority_queue_bst* arrived_processes = init_pqbst();
     array* gantt_rects = init_array(n);
 
@@ -63,11 +62,11 @@ gantt_c* npp_gantt_of(process*a, int n)
     }
     shrink_to_fit(gantt_rects);
 
-    gantt_c* gantt_chart = malloc(sizeof(gantt_c));
-    gantt_chart->gp = (gantt_p**) gantt_rects->arr;
-    gantt_chart->n_gp = gantt_rects->size;
-    gantt_chart->pmd = pmd;
-    gantt_chart->n_pmd = n;
+    gantt_c gantt_chart;
+    gantt_chart.gp = (gantt_p**) gantt_rects->arr;
+    gantt_chart.n_gp = gantt_rects->size;
+    gantt_chart.pmd = pmd;
+    gantt_chart.n_pmd = n;
 
     free_pqbst(arrived_processes, false);
     free(gantt_rects);

@@ -8,10 +8,9 @@
 //CT  = TAT + AT
 //TAT = CT - AT we can use this
 //RT  = TAT - BT
-gantt_c* fcfs_gantt_of(process*a, int n)
+gantt_c fcfs_gantt_of(process*a, int n)
 {
-    int (*cmp)(const process*, const process*) = &cmp_processes_at;
-    msort(a, n, sizeof(process*), cmp);
+    msort(a, n, sizeof(process*), cmp_AT_func);
     array gantt_rects;
     set_array(&gantt_rects ,n, sizeof(gantt_p), NULL);
     process_metadata* pmd = calloc(n, sizeof(process_metadata));
@@ -53,11 +52,11 @@ gantt_c* fcfs_gantt_of(process*a, int n)
 
     shrink_to_fit(&gantt_rects);
 
-    gantt_c* gantt_chart = malloc(sizeof(gantt_c));
-    gantt_chart->gp = (gantt_p*) gantt_rects.arr;
-    gantt_chart->n_gp = gantt_rects.size;
-    gantt_chart->pmd = pmd;
-    gantt_chart->n_pmd = n;
+    gantt_c gantt_chart;
+    gantt_chart.gp = (gantt_p*) gantt_rects.arr;
+    gantt_chart.n_gp = gantt_rects.size;
+    gantt_chart.pmd = pmd;
+    gantt_chart.n_pmd = n;
 
     return gantt_chart;
 }

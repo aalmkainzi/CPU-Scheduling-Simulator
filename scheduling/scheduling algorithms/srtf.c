@@ -8,10 +8,9 @@
 
 //TODO make a reusable function in scheduling.h that can is a generic priority member function =>
 //priority_scheduling(process*a, int n, int offset) where offset is where the member to prioritize is in relation to the beginning of the process
-gantt_c* srtf_gantt_of(process*a, int n)
+gantt_c srtf_gantt_of(process*a, int n)
 {
-    int (*cmp)(const void*, const void*) = &cmp_processes_at;
-    msort(a, n, sizeof(process*), cmp);
+    msort(a, n, sizeof(process*), cmp_AT_func);
 
     priority_queue_bst* arrived_processes = init_pqbst();
 

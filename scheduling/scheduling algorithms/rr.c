@@ -4,11 +4,9 @@
 #include "../../data structs/linked structs/linked queue/linkedqueue.h"
 #include "../../data structs/hashmap/hashmap.h"
 
-gantt_c* rr_gantt_of(process*a, int n, int tq)
+gantt_c rr_gantt_of(process*a, int n, int tq)
 {
-    int (*cmp)(const process*, const process*) = &cmp_processes_at;
-
-    msort(a, n, sizeof(process*), cmp);
+    msort(a, n, sizeof(process*), cmp_AT_func);
 
     array* gantt_rects = init_array(n, sizeof(gantt_p), NULL);
     
@@ -122,16 +120,17 @@ gantt_c* rr_gantt_of(process*a, int n, int tq)
         }
     }
     free_q(arrived_processes, false);
-    process_metadata* pmd_arr = calloc(n, sizeof(process_metadata));
-    hashmap_to_arr(&pmd_hm, pmd_arr);
+    //process_metadata* pmd_arr = calloc(n, sizeof(process_metadata));
+    //hashmap_to_arr(&pmd_hm, pmd_arr);
     free_hashmap(&pmd_hm);
-    gantt_c* gantt_chart = malloc(sizeof(gantt_c));
+    gantt_c gantt_chart;
     shrink_to_fit(gantt_rects);
-    gantt_chart->gp = (gantt_p*) gantt_rects->arr;
-    gantt_chart->n_gp = gantt_rects->size;
+    gantt_chart.gp = (gantt_p*) gantt_rects->arr;
+    gantt_chart.n_gp = gantt_rects->size;
     free(gantt_rects);
-    gantt_chart->pmd = pmd_arr;
-    gantt_chart->n_pmd = n;
+    gantt_chart.pmd = calloc(n, sizeof(process_metadata));
+    hashmap_to_arr(&pmd_hm, gantt_chart.pmd);
+    gantt_chart.n_pmd = n;
 
     return gantt_chart;
 }

@@ -6,6 +6,7 @@
 
 FILE *get_pfile();
 
+//TODO insert processes in sorted order (by AT) instead of insertion order
 int main()
 {
     while(true)
@@ -32,12 +33,12 @@ int main()
         char input = getc(stdin);
         getc(stdin); //to eat the '\n' after inserting into "char input"
 
-        gantt_c* gantt_chart;
+        gantt_c gantt_chart;
         switch (input)
         {
             case '1':
             {
-                gantt_chart = fcfs_gantt_of(processes_buffer, size);
+                fcfs_gantt_of(processes_buffer, size);
                 break;
             }
             case '2':
@@ -68,14 +69,14 @@ int main()
                 gantt_chart = srtf_gantt_of(processes_buffer, size);
                 break;
             }
-            default: gantt_chart = NULL;
+            default:
+            {
+                free(processes_buffer);
+                continue;
+            }
         }
-
-        if(gantt_chart)
-        {
-            print_gantt(gantt_chart);
-            free_gantt(gantt_chart, true, true);
-        }
+        print_gantt(&gantt_chart);
+        //free_gantt(&gantt_chart, true, true);
         free(processes_buffer);
     }
 }

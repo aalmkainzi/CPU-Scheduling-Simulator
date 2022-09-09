@@ -4,10 +4,9 @@
 #include "../../data structs/dynamic array/array.h"
 #include "../../data structs/priority queue BST/priorityqueuebst.h"
 
-gantt_c* sjf_gantt_of(process*a, int n)
+gantt_c sjf_gantt_of(process*a, int n)
 {
-    int (*cmp)(const process*, const process*) = &cmp_processes_at;
-    qsort(a, n, sizeof(process*), cmp);
+    qsort(a, n, sizeof(process*), cmp_AT_func);
 
     priority_queue_bst* arrived_processes = init_pqbst();
     array* gantt_rects = init_array(n);

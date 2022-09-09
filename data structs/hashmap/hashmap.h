@@ -9,7 +9,7 @@
 typedef struct
 {
     void* buffer;
-    void* v_start;
+    void* v_start; //we can probably index this by key_size
 
     int k_empty_start; //indexed by key_size
     int v_empty_start; //indexed by val_size

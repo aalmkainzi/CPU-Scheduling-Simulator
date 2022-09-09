@@ -5,18 +5,19 @@
 #include "../../data structs/hashmap/hashmap.h"
 #include "../../data structs/dynamic array/array.h"
 
-gantt_c* pp_gantt_of(process*a, int n)
+gantt_c pp_gantt_of(process*a, int n)
 {
-    int (*cmp)(const void*, const void*) = &cmp_processes_at;
-    msort(a, n, sizeof(process*), cmp);
+    msort(a, n, sizeof(process*), cmp_AT_func);
 
     priority_queue_bst* arrived_processes = init_pqbst();
 
-    bool (*equals)(const void*, const void**) = &pmd_equals;
-    size_t (*hash)(const void*) = &hash_str;
-    hashmap* pmd_hm = init_hashmap_local(n, equals, hash);
+    bool (*equals)(const void*, const void*) = &pmd_equals;
+    int (*hash)(const void*) = &hash_str;
+    hashmap pmd_hm;
+    set_hashmap(&pmd_hm, n, equals, hash, MAX_PROCESS_NAME, sizeof(process_metadata));
 
-    array* gantt_rects = init_array(n);
+    array gantt_rects;
+    set_array(&gantt_rects ,n, sizeof(gantt_p), NULL);
 
     process* current_job = NULL;
     for (int i = 0, time_passed = 0; !pqbst_empty(arrived_processes) || i < n || current_job; )
@@ -103,7 +104,7 @@ gantt_c* pp_gantt_of(process*a, int n)
     free(gantt_rects);
     process_metadata** pmd_arr = calloc(n, sizeof(process_metadata*));
     hashmap_to_arr(pmd_hm, pmd_arr);
-    free_hashmap(pmd_hm, false, false);
+    free_hashmap(pmd_hm);
     gantt_chart->pmd = pmd_arr;
     gantt_chart->n_pmd = n;
 
